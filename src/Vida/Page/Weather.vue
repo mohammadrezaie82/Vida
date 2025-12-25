@@ -21,7 +21,9 @@
             >
                 <div class="flex justify-between items-center">
                     <div class="text-3xl sm:text-4xl font-bold">{{ weatherData.temperature }}°C</div>
-                    <div class="text-5xl sm:text-6xl mt-2 md:mt-0 lg:hidden block">{{ getWeatherIcon(weatherData.weathercode) }}</div>
+                    <div class="text-5xl sm:text-6xl mt-2 md:mt-0 lg:hidden block">
+                        <img v-if="getWeatherIcon(weatherData.weathercode)" :src="getWeatherIcon(weatherData.weathercode)" alt="hour icon" class="w-16 h-16 mx-auto" />
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 text-sm sm:text-base">
@@ -32,7 +34,9 @@
                     <p>{{ $t("sunrise") }}: {{ weatherData.sunrise }}</p>
                     <p>{{ $t("sunset") }}: {{ weatherData.sunset }}</p>
                 </div>
-                <div class="text-5xl sm:text-6xl mt-2 md:mt-0 hidden lg:block">{{ getWeatherIcon(weatherData.weathercode) }}</div>
+                <div class="text-5xl sm:text-6xl mt-2 md:mt-0 hidden lg:block">
+                    <img v-if="getWeatherIcon(weatherData.weathercode)" :src="getWeatherIcon(weatherData.weathercode)" alt="hour icon" class="w-16 h-16 mx-auto" />
+                </div>
             </div>
 
             <!-- Daily Tips -->
@@ -53,7 +57,7 @@
             <div class="flex gap-4 overflow-x-auto md:overflow-x-hidden">
                 <div v-for="hour in hourlyForecast" :key="hour.time" class="flex-1 min-w-[90px] flex flex-col items-center p-2 bg-gray-100/20 dark:bg-white/15 rounded-2xl">
                     <div class="text-sm sm:text-base">{{ hour.time }}</div>
-                    <div class="text-xl sm:text-2xl">{{ hour.icon }}</div>
+                    <div class="text-xl sm:text-2xl"><img v-if="hour.icon" :src="hour.icon" alt="hour icon" class="w-16 h-16 mx-auto" /></div>
                     <div class="text-sm sm:text-base">{{ hour.temp }}°C</div>
                 </div>
             </div>
@@ -67,7 +71,7 @@
             <div class="flex flex-nowrap md:flex-wrap gap-4 w-max md:w-full">
                 <div v-for="day in weekForecast" :key="day.day" class="flex-1 flex flex-col items-center p-2 min-w-[120px]">
                     <div class="text-sm font-medium">{{ day.day }}</div>
-                    <div class="text-2xl">{{ day.icon }}</div>
+                    <div class="text-2xl"><img v-if="day.icon" :src="day.icon" alt="day icon" class="w-16 h-16 mx-auto" /></div>
                     <div class="text-sm">{{ day.max }}° / {{ day.min }}°</div>
                 </div>
             </div>
@@ -85,6 +89,15 @@
 import { ref, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { Chart, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } from "chart.js";
+import clearIcon from "../../assets/weather/day.svg";
+import partlyCloudyIcon1 from "../../assets/weather/cloudy-day-1.svg";
+import partlyCloudyIcon3 from "../../assets/weather/cloudy-day-3.svg";
+import cloudyIcon from "../../assets/weather/cloudy.svg";
+import rainIcon from "../../assets/weather/rainy-1.svg";
+import snowIcon4 from "../../assets/weather/snowy-4.svg";
+import snowIcon6 from "../../assets/weather/snowy-6.svg";
+import drizzleIcon from "../../assets/weather/rainy-1.svg";
+import fogIcon from "../../assets/weather/thunder.svg";
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
 
@@ -96,15 +109,15 @@ const currentTime = ref(new Date().toLocaleTimeString());
 
 const { t } = useI18n();
 const getWeatherIcon = (code) => {
-    if (code === 0) return "☀️";
-    if (code === 1) return "🌤️";
-    if (code === 2) return "⛅";
-    if (code === 3) return "☁️";
+    if (code === 0) return clearIcon;
+    if (code === 1) return partlyCloudyIcon1;
+    if (code === 2) return partlyCloudyIcon3;
+    if (code === 3) return cloudyIcon;
     if (code >= 45 && code <= 48) return "🌫️";
-    if (code >= 51 && code <= 67) return "🌦️";
-    if (code >= 71 && code <= 77) return "❄️";
-    if (code >= 80 && code <= 82) return "🌧️";
-    if (code >= 95) return "⛈️";
+    if (code >= 51 && code <= 67) return rainIcon;
+    if (code >= 71 && code <= 77) return snowIcon4;
+    if (code >= 80 && code <= 82) return snowIcon6;
+    if (code >= 95) return drizzleIcon;
     return "❔";
 };
 
@@ -119,8 +132,8 @@ const fetchWeather = async (lat, lon) => {
             humidity: data.hourly.relativehumidity_2m ? data.hourly.relativehumidity_2m[0] : 50,
             pressure: data.hourly.pressure_msl ? data.hourly.pressure_msl[0] : 1013,
             feels_like: data.current_weather.temperature,
-            sunrise: "06:12", 
-            sunset: "18:45", 
+            sunrise: "06:12",
+            sunset: "18:45",
         };
 
         weekForecast.value = data.daily.time.slice(0, 7).map((date, i) => ({
@@ -222,5 +235,4 @@ watch([weekForecast, hourlyForecast], () => {
 });
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

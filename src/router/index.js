@@ -50,9 +50,7 @@ const router = createRouter({
     routes,
 });
 
-// Debug logging (در production حذف کنید)
 router.beforeEach((to, from, next) => {
-    console.log('Navigating to:', to.fullPath, 'Name:', to.name);
     next();
 });
 

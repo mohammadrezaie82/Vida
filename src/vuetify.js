@@ -1,20 +1,23 @@
-// src/vuetify.js
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
-
-// 👇 این دو خط خیلی مهم‌اند
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import { fa, en } from 'vuetify/locale'
 
-export default createVuetify({
+export const vuetify = createVuetify({
   components,
   directives,
+
+  locale: {
+    locale: 'fa',
+    fallback: 'en',
+    messages: { fa, en },
+  },
+
   icons: {
     defaultSet: 'mdi',
     aliases,
-    sets: {
-      mdi,
-    },
+    sets: { mdi },
   },
 })

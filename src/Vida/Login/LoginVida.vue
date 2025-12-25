@@ -179,21 +179,17 @@ import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import myLogo from "../../assets/Logo.svg";
 import irLogo from "../../assets/Ir.svg";
-import usLogo from "../../assets/us.svg";
+import usLogo from "../../assets/us.svg"
 
 const { t, locale } = useI18n();
 const router = useRouter();
-
 const provinces = ref([]);
 const cities = ref([]);
 const selectedProvince = ref(null);
 const selectedCity = ref(null);
-
 const currentLanguage = ref(locale.value);
 const currentLanguageLabel = computed(() => (currentLanguage.value === "FA" ? "فارسی" : "English"));
-
 const isDark = ref(false);
-
 const toggleTheme = () => {
     const html = document.documentElement;
     if (isDark.value) {
@@ -287,7 +283,6 @@ const submit = handleSubmit((values) => {
         city: selectedCity.value || null,
     };
     localStorage.setItem("user", JSON.stringify(userData));
-    console.log(userData);
     router.push("/dashboard/dashboard-home");
 });
 </script>

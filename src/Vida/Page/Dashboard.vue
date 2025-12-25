@@ -57,7 +57,7 @@
                         class="flex-1 backdrop-blur-2xl bg-white/70 dark:bg-white/10 border border-white/20 dark:border-white/10 rounded-3xl shadow-2xl p-6 text-center text-slate-900 dark:text-white"
                     >
                         <h2 class="text-2xl font-bold mb-4">{{ t("todaysWeather") }}</h2>
-                        <div class="text-6xl mb-2">{{ weather.icon }}</div>
+                        <div class="text-6xl mb-2"><img v-if="weather.icon" :src="weather.icon" alt="weather icon" class="w-16 h-16 mx-auto" /></div>
                         <div class="text-3xl font-semibold">{{ weather.temp }}°C</div>
                         <div class="text-lg text-slate-700 dark:text-slate-200">{{ weather.condition }}</div>
                         <button
@@ -76,6 +76,13 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
+import clearIcon from "../../assets/weather/day.svg";
+import partlyCloudyIcon from "../../assets/weather/cloudy-day-1.svg";
+import cloudyIcon from "../../assets/weather/cloudy.svg";
+import rainIcon from "../../assets/weather/rainy-1.svg";
+import snowIcon from "../../assets/weather/snowy-1.svg";
+import drizzleIcon from "../../assets/weather/rainy-1.svg";
+import fogIcon from "../../assets/weather/thunder.svg";
 
 const router = useRouter();
 const user = ref({});
@@ -87,6 +94,7 @@ let timer;
 onMounted(() => {
     timer = setInterval(() => {
         time.value = new Date();
+        console.log(time.value);
     }, 1000);
 });
 
@@ -120,7 +128,6 @@ const weather = ref({
 });
 
 async function fetchWeather(lat, lon) {
-    console.log(lat, lon);
     weather.value.loading = true;
     try {
         const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,weathercode&timezone=auto`);
@@ -139,14 +146,15 @@ async function fetchWeather(lat, lon) {
         else weather.value.condition = "Cloudy";
 
         const icons = {
-            Clear: "☀️",
-            "Partly Cloudy": "⛅",
-            Cloudy: "☁️",
-            Rain: "🌧️",
-            Snow: "❄️",
-            Drizzle: "🌦️",
-            Fog: "🌫️",
+            Clear: clearIcon,
+            "Partly Cloudy": partlyCloudyIcon,
+            Cloudy: cloudyIcon,
+            Rain: rainIcon,
+            Snow: snowIcon,
+            Drizzle: drizzleIcon,
+            Fog: fogIcon,
         };
+
         weather.value.icon = icons[weather.value.condition] || "🌡️";
     } catch (error) {
         console.error(error);

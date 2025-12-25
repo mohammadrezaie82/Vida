@@ -16,7 +16,7 @@
             <div class="items-center gap-3 sm:gap-6 flex">
                 <!-- Location -->
                 <div class="hidden sm:flex items-center gap-2 text-sm px-3 py-1 rounded-xl text-slate-900 dark:text-white shadow">
-                    <span>{{ user.province }}, {{ user.city }}</span>
+                    <span>{{ user.province }} {{ user.city?',':'' }} {{ user.city }}</span>
                     <v-icon size="18" class="text-cyan-500 dark:text-cyan-400">mdi-map-marker</v-icon>
                 </div>
 
@@ -163,7 +163,6 @@ window.addEventListener("storage", (event) => {
 
 const initTheme = () => {
     const savedTheme = localStorage.getItem("theme");
-    console.log(localStorage.getItem(""));
     const html = document.documentElement;
 
     if (savedTheme === "dark") {

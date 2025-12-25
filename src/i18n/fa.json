@@ -47,15 +47,14 @@
     "temperatureChart": "نمودار دما",
     "hourlyTemp": "دمای ساعتی (°C)",
     "profileSettings": "تنظیمات پروفایل",
-  "personalInfo": "اطلاعات شخصی",
-  "changeAvatar": "تغییر آواتار",
-  "fullName": "نام کامل",
-  "location": "مکان",
-  "notifications": "اعلان‌ها",
-  "weatherAlerts": "هشدارهای آب‌وهوا",
-  "dailySummary": "خلاصه روزانه هواشناسی",
-  "saveChanges": "ذخیره تغییرات",
-  "enterAvatarUrl": "آدرس آواتار را وارد کنید",
-  "profileSaved": "پروفایل با موفقیت ذخیره شد!"
-
+    "personalInfo": "اطلاعات شخصی",
+    "changeAvatar": "تغییر آواتار",
+    "fullName": "نام کامل",
+    "location": "مکان",
+    "notifications": "اعلان‌ها",
+    "weatherAlerts": "هشدارهای آب‌وهوا",
+    "dailySummary": "خلاصه روزانه هواشناسی",
+    "saveChanges": "ذخیره تغییرات",
+    "enterAvatarUrl": "آدرس آواتار را وارد کنید",
+    "profileSaved": "پروفایل با موفقیت ذخیره شد!"
 }
