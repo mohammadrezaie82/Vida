@@ -56,5 +56,7 @@
     "dailySummary": "Daily Weather Summary",
     "saveChanges": "Save Changes",
     "enterAvatarUrl": "Enter Avatar URL",
-    "profileSaved": "Profile saved successfully!"
+    "profileSaved": "Profile saved successfully!",
+    "addTodoToday": "Add tasks for today",
+    "addTodo":"Add Todo"
 }

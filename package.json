@@ -16,7 +16,7 @@
     "@fullcalendar/vue3": "^6.1.19",
     "@mdi/font": "^7.4.47",
     "chart.js": "^4.5.0",
-    "pinia": "^3.0.3",
+    "pinia": "^3.0.4",
     "sass": "^1.89.2",
     "v-calendar": "^3.1.2",
     "vee-validate": "^4.15.1",
@@ -33,6 +33,7 @@
     "daisyui": "^5.0.46",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.3",
     "vite": "^7.0.4"
   }
 }

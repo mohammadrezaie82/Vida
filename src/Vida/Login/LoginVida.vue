@@ -172,21 +172,24 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref, watch, onMounted } from "vue";
 import { useField, useForm } from "vee-validate";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import myLogo from "../../assets/Logo.svg";
 import irLogo from "../../assets/Ir.svg";
-import usLogo from "../../assets/us.svg"
+import usLogo from "../../assets/us.svg";
+import { useUserStore } from "../../stores/user";
+import type { User } from "../../stores/user";
 
+const userStore = useUserStore();
 const { t, locale } = useI18n();
 const router = useRouter();
-const provinces = ref([]);
-const cities = ref([]);
-const selectedProvince = ref(null);
-const selectedCity = ref(null);
+const provinces = ref<any[]>([]);
+const cities = ref<any[]>([]);
+const selectedProvince = ref<string | null>(null);
+const selectedCity = ref<string | null>(null);
 const currentLanguage = ref(locale.value);
 const currentLanguageLabel = computed(() => (currentLanguage.value === "FA" ? "فارسی" : "English"));
 const isDark = ref(false);
@@ -223,24 +226,16 @@ function changeLanguage(lang) {
     localStorage.setItem("lang", lang);
 }
 
-// API Provinces
 const fetchProvinces = async () => {
-    try {
-        const res = await fetch("https://iranplacesapi.liara.run/api/provinces");
-        provinces.value = await res.json();
-    } catch (err) {
-        console.error(err);
-    }
+  const res = await fetch("https://iranplacesapi.liara.run/api/provinces");
+  provinces.value = await res.json();
 };
 
-// API Cities
-const fetchCities = async (province) => {
-    try {
-        const res = await fetch(`https://iranplacesapi.liara.run/api/provinces/name/${province}/cities`);
-        cities.value = await res.json();
-    } catch (err) {
-        console.error(err);
-    }
+const fetchCities = async (province: string) => {
+  const res = await fetch(
+    `https://iranplacesapi.liara.run/api/provinces/name/${province}/cities`
+  );
+  cities.value = await res.json();
 };
 
 watch(selectedProvince, (newProvince) => {
@@ -265,24 +260,27 @@ const { handleSubmit } = useForm({
         },
         email(value) {
             if (!value) return "E-mail is required.";
-            value = value.trim();
+            value = value.trim();   
             const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             return regex.test(value) ? true : "Must be a valid e-mail.";
         },
     },
 });
 
-const name = useField("name");
-const phone = useField("phone");
-const email = useField("email");
+const name = useField<string>("name");
+const phone = useField<string>("phone");
+const email = useField<string>("email");
 
 const submit = handleSubmit((values) => {
-    const userData = {
-        ...values,
-        province: selectedProvince.value || null,
-        city: selectedCity.value || null,
-    };
-    localStorage.setItem("user", JSON.stringify(userData));
-    router.push("/dashboard/dashboard-home");
+  const userData: User = {
+    name: values.name,
+    phone: values.phone,
+    email: values.email,
+    province: selectedProvince.value,
+    city: selectedCity.value,
+  };
+
+  userStore.setUser(userData);
+  router.push("/dashboard/dashboard-home");
 });
 </script>

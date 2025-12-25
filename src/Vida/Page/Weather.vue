@@ -1,6 +1,6 @@
 <template>
     <div
-        class="relative min-h-screen overflow-x-hidden p-4 sm:p-6 bg-gradient-to-br from-white via-cyan-50 to-blue-50 dark:from-cyan-900 dark:via-slate-900 dark:to-slate-950 space-y-6"
+        class="relative min-h-screen overflow-hidden  p-4 sm:p-6 bg-gradient-to-br from-white via-cyan-50 to-blue-50 dark:from-cyan-900 dark:via-slate-900 dark:to-slate-950 space-y-6"
     >
         <div
             class="absolute -top-40 -left-40 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-30 -z-10 bg-[radial-gradient(closest-side,#22d3ee,transparent)] dark:bg-[radial-gradient(closest-side,#22d3ee,transparent)]"
@@ -80,12 +80,12 @@
         <!-- Temperature Chart -->
         <div class="backdrop-blur-2xl bg-white/30 dark:bg-white/10 border border-gray-200 dark:border-white/10 shadow-2xl rounded-3xl p-4 text-gray-900 dark:text-white">
             <h3 class="font-semibold mb-2 text-cyan-500 dark:text-cyan-300">{{ $t("temperatureChart") }}</h3>
-            <canvas ref="chartCanvas" class="h-40 w-full"></canvas>
+            <canvas ref="chartCanvas" style="height: 200px; width: 100%"></canvas>
         </div>
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { Chart, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } from "chart.js";
@@ -98,52 +98,93 @@ import snowIcon4 from "../../assets/weather/snowy-4.svg";
 import snowIcon6 from "../../assets/weather/snowy-6.svg";
 import drizzleIcon from "../../assets/weather/rainy-1.svg";
 import fogIcon from "../../assets/weather/thunder.svg";
+import { onUnmounted } from "vue";
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
 
-const city = ref("");
-const weatherData = ref({});
-const weekForecast = ref([]);
-const hourlyForecast = ref([]);
+interface WeatherData {
+    temperature: number;
+    weathercode: number;
+    feels_like: number;
+    humidity: number;
+    pressure: number;
+    windspeed: number;
+    sunrise: string;
+    sunset: string;
+}
+
+interface HourlyForecast {
+    time: string;
+    temp: number;
+    icon: string;
+}
+
+interface WeekForecast {
+    day: string;
+    max: number;
+    min: number;
+    icon: string;
+}
+
+const weatherData = ref<WeatherData>({
+    temperature: 0,
+    weathercode: 0,
+    feels_like: 0,
+    humidity: 0,
+    pressure: 0,
+    windspeed: 0,
+    sunrise: "",
+    sunset: "",
+});
+const hourlyForecast = ref<HourlyForecast[]>([]);
+const weekForecast = ref<WeekForecast[]>([]);
 const currentTime = ref(new Date().toLocaleTimeString());
 
 const { t } = useI18n();
-const getWeatherIcon = (code) => {
+const chartCanvas = ref<HTMLCanvasElement | null>(null);
+let chartInstance: Chart | null = null;
+let timeInterval: number;
+
+const getWeatherIcon = (code: number) => {
     if (code === 0) return clearIcon;
     if (code === 1) return partlyCloudyIcon1;
     if (code === 2) return partlyCloudyIcon3;
     if (code === 3) return cloudyIcon;
-    if (code >= 45 && code <= 48) return "🌫️";
+    if (code >= 45 && code <= 48) return fogIcon;
     if (code >= 51 && code <= 67) return rainIcon;
     if (code >= 71 && code <= 77) return snowIcon4;
     if (code >= 80 && code <= 82) return snowIcon6;
     if (code >= 95) return drizzleIcon;
-    return "❔";
+    return clearIcon;
 };
 
-const fetchWeather = async (lat, lon) => {
+const fetchWeather = async (lat: number, lon: number) => {
     try {
         const res = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&hourly=temperature_2m,weathercode&timezone=Asia/Tehran`
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&hourly=temperature_2m,weathercode,relativehumidity_2m,pressure_msl&windspeed&timezone=Asia/Tehran`
         );
         const data = await res.json();
+
+        const current = data.current_weather;
         weatherData.value = {
-            ...data.current_weather,
+            temperature: current.temperature,
+            weathercode: current.weathercode,
+            feels_like: current.temperature,
             humidity: data.hourly.relativehumidity_2m ? data.hourly.relativehumidity_2m[0] : 50,
             pressure: data.hourly.pressure_msl ? data.hourly.pressure_msl[0] : 1013,
-            feels_like: data.current_weather.temperature,
+            windspeed: data.current_weather.windspeed || 0,
             sunrise: "06:12",
             sunset: "18:45",
         };
 
-        weekForecast.value = data.daily.time.slice(0, 7).map((date, i) => ({
+        weekForecast.value = data.daily.time.slice(0, 7).map((date: string, i: number) => ({
             day: new Date(date).toLocaleDateString("en-US", { weekday: "short" }),
             max: data.daily.temperature_2m_max[i],
             min: data.daily.temperature_2m_min[i],
             icon: getWeatherIcon(data.daily.weathercode[i]),
         }));
 
-        hourlyForecast.value = data.hourly.time.slice(0, 10).map((t, i) => ({
+        hourlyForecast.value = data.hourly.time.slice(0, 10).map((t: string, i: number) => ({
             time: new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             temp: data.hourly.temperature_2m[i],
             icon: getWeatherIcon(data.hourly.weathercode[i]),
@@ -153,86 +194,55 @@ const fetchWeather = async (lat, lon) => {
     }
 };
 
-onMounted(() => {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const weather = await fetchWeather(position.coords.latitude, position.coords.longitude);
-                console.log(weather);
-            },
-            (error) => {
-                console.error("Geolocation error:", error);
-                fetchWeather(35.6892, 51.389); // Tehran fallback
-            }
-        );
-    } else {
-        fetchWeather(35.6892, 51.389);
-    }
-
-    setInterval(() => {
-        currentTime.value = new Date().toLocaleTimeString();
-    }, 1000);
-});
-
-const chartCanvas = ref(null);
-let chartInstance = null;
-
 const renderChart = () => {
     if (!chartCanvas.value) return;
 
     const labels = hourlyForecast.value.map((h) => h.time);
-    const maxTemps = hourlyForecast.value.map((h) => h.temp);
-    const weekLabels = weekForecast.value.map((d) => d.day);
-    const weekMax = weekForecast.value.map((d) => d.max);
-    const weekMin = weekForecast.value.map((d) => d.min);
+    const temps = hourlyForecast.value.map((h) => h.temp);
 
     if (chartInstance) chartInstance.destroy();
 
     chartInstance = new Chart(chartCanvas.value, {
         type: "line",
         data: {
-            labels: labels.length ? labels : weekLabels,
-            datasets: labels.length
-                ? [
-                      {
-                          label: "Hourly Temp (°C)",
-                          data: maxTemps,
-                          borderColor: "#ff5722",
-                          backgroundColor: "rgba(255,87,34,0.2)",
-                          tension: 0.3,
-                      },
-                  ]
-                : [
-                      {
-                          label: "Max Temp (°C)",
-                          data: weekMax,
-                          borderColor: "#ff5722",
-                          backgroundColor: "rgba(255,87,34,0.2)",
-                          tension: 0.3,
-                      },
-                      {
-                          label: "Min Temp (°C)",
-                          data: weekMin,
-                          borderColor: "#2196f3",
-                          backgroundColor: "rgba(33,150,243,0.2)",
-                          tension: 0.3,
-                      },
-                  ],
+            labels,
+            datasets: [
+                {
+                    label: "Hourly Temp (°C)",
+                    data: temps,
+                    borderColor: "#ff5722",
+                    backgroundColor: "rgba(255,87,34,0.2)",
+                    tension: 0.3,
+                },
+            ],
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { position: "top" },
-                title: { display: false },
-            },
+            plugins: { legend: { position: "top" }, title: { display: false } },
             scales: { y: { beginAtZero: false } },
         },
     });
 };
 
-watch([weekForecast, hourlyForecast], () => {
-    renderChart();
+watch([hourlyForecast, weekForecast], () => renderChart());
+
+onMounted(() => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+            () => fetchWeather(35.6892, 51.389)
+        );
+    } else {
+        fetchWeather(35.6892, 51.389);
+    }
+
+    timeInterval = window.setInterval(() => {
+        currentTime.value = new Date().toLocaleTimeString();
+    }, 1000);
+});
+
+onUnmounted(() => {
+    clearInterval(timeInterval);
+    if (chartInstance) chartInstance.destroy();
 });
 </script>
-
-<style scoped></style>
