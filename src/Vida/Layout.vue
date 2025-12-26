@@ -55,8 +55,15 @@
 
         <!-- User Info -->
         <div v-if="userStore.user" class="flex items-center gap-2 me-6">
+          
           <span class="font-medium text-slate-900 dark:text-white hidden lg:block">{{ userStore.user.name }}</span>
+          <img
+          v-if="userStore.user.avatar"
+          :src="userStore.user.avatar"
+          class="w-9 h-9 rounded-full object-cover border shadow"
+            />
           <div
+           v-if="!userStore.user.avatar"
             class="w-9 h-9 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white flex items-center justify-center text-sm font-bold shadow cursor-pointer"
             @click="router.push('/dashboard/profile')"
           >
@@ -133,7 +140,6 @@ const items = computed(() => [
 const currentLanguage = ref(locale.value);
 const currentLanguageLabel = computed(() => (currentLanguage.value === "FA" ? "fa" : "Us"));
 
-// init theme
 const initTheme = () => {
   const savedTheme = localStorage.getItem("theme");
   const html = document.documentElement;
@@ -170,12 +176,10 @@ const changeLanguage = (lang: string) => {
   localStorage.setItem("lang", lang);
 };
 
-// handle window resize
 const onResize = () => (screenWidth.value = window.innerWidth);
 onMounted(() => window.addEventListener("resize", onResize));
 onBeforeUnmount(() => window.removeEventListener("resize", onResize));
 
-// sync user store with storage (multi-tab)
 watch(userStore.user, (newVal) => {
   if (newVal) localStorage.setItem("user", JSON.stringify(newVal));
 }, { deep: true });

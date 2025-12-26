@@ -10,11 +10,9 @@ export interface User {
   city: string | null;
 }
 
-
 export const useUserStore = defineStore("user", () => {
   const user = ref<User | null>(null);
 
-  // load from localStorage
   const init = () => {
     const saved = localStorage.getItem("user");
     if (saved) {
@@ -26,12 +24,22 @@ export const useUserStore = defineStore("user", () => {
     user.value = data;
   };
 
+  const updateUser = (payload: Partial<User>) => {
+    if (!user.value) {
+      user.value = payload as User;
+    } else {
+      user.value = {
+        ...user.value,
+        ...payload,
+      };
+    }
+  };
+
   const clearUser = () => {
     user.value = null;
     localStorage.removeItem("user");
   };
 
-  // auto persist
   watch(
     user,
     (val) => {
@@ -46,6 +54,7 @@ export const useUserStore = defineStore("user", () => {
     user,
     init,
     setUser,
+    updateUser,
     clearUser,
   };
 });

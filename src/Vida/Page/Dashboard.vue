@@ -104,7 +104,6 @@ const typeDate = ref<'FA' | 'EN'>('FA');
 const time = ref(new Date());
 let timer: number;
 
-// کاربر
 const userStore = useUserStore();
 const user = computed<User | null>(() => userStore.user); 
 
@@ -116,17 +115,14 @@ const greetingMessage = computed(() => {
   return t('goodNight');
 });
 
-// Todo از Pinia
 const todoStore = useTodoStore();
-todoStore.init(); // لود اولیه
+todoStore.init(); 
 
-// فقط تسک‌های امروز
 const todayStr = computed(() => new Date().toISOString().slice(0, 10));
 const todos = computed<Todo[]>(() =>
   todoStore.todos.filter(t => t.date === todayStr.value)
 );
 
-// Weather
 const weather = ref({ temp: 0, condition: '', icon: '', loading: true });
 
 async function fetchWeather(lat: number, lon: number) {
@@ -172,7 +168,7 @@ onMounted(() => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-      () => fetchWeather(35.6892, 51.389) // Tehran default
+      () => fetchWeather(35.6892, 51.389) 
     );
   } else {
     fetchWeather(35.6892, 51.389);

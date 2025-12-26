@@ -58,5 +58,6 @@
     "enterAvatarUrl": "Enter Avatar URL",
     "profileSaved": "Profile saved successfully!",
     "addTodoToday": "Add tasks for today",
-    "addTodo":"Add Todo"
+    "addTodo":"Add Todo",
+    "uploadAvatar":"Upload Avatar"
 }

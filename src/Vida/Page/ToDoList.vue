@@ -74,12 +74,10 @@ const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null);
 
 const maxTitleLength = 15;
 
-// فیلتر کردن تسک‌ها برای تاریخ انتخاب شده
 const todosForDate = computed(() =>
   todoStore.todos.filter((t) => t.date === selectedDate.value.toISOString().slice(0, 10))
 );
 
-// اضافه کردن یا ذخیره ویرایش
 function saveTodo() {
   if (!newTodo.value.trim()) return;
 
@@ -98,18 +96,15 @@ function saveTodo() {
   newTodo.value = "";
 }
 
-// ویرایش یک تسک
 function editTodo(todo: Todo) {
   editingTodo.value = todo;
   newTodo.value = todo.title;
 }
 
-// حذف تسک
 function deleteTodo(id: number) {
   todoStore.deleteTodo(id);
 }
 
-// تنظیمات تقویم
 const calendarOptions = {
   plugins: [dayGridPlugin, interactionPlugin],
   initialView: "dayGridMonth",
@@ -143,7 +138,6 @@ const updateCalendarEvents = () => {
   });
 };
 
-// وقتی store تغییر می‌کنه، تقویم رو آپدیت کن
 watch(
   () => todoStore.todos,
   () => {
@@ -154,7 +148,6 @@ watch(
   { deep: true }
 );
 
-// همچنین بعد از load اولیه
 todoStore.init();
 nextTick(() => updateCalendarEvents());
 
