@@ -44,12 +44,11 @@ watch(
     document.documentElement.lang = isRTL ? "fa" : "en";
     document.documentElement.dir = isRTL ? "rtl" : "ltr";
 
-    // Vuetify locale
     vuetify.locale.current.value = isRTL ? "fa" : "en";
 
     localStorage.setItem("lang", locale);
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 app.mount("#app");
