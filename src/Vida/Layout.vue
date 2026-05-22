@@ -180,7 +180,7 @@ import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useUserStore } from "../stores/user";
 import myLogo from "../assets/Logo.svg";
-import irLogo from "../assets/ir.svg";
+import irLogo from "../assets/Ir.svg";
 import usLogo from "../assets/us.svg";
 
 const router = useRouter();
