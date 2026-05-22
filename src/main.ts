@@ -1,6 +1,6 @@
 import { createApp, watch } from "vue";
 import App from "./App.vue";
-import { vuetify } from "./plugins/vuetify.ts";
+import { vuetify } from "./plugins/vuetify";
 import "@mdi/font/css/materialdesignicons.css";
 import "./style.css";
 import router from "./router";
@@ -9,20 +9,20 @@ import "v-calendar/style.css";
 
 import { createI18n } from "vue-i18n";
 import fa from "./i18n/fa.json";
-import us from "./i18n/us.json";
+import en from "./i18n/en.json";
 import { createPinia } from "pinia";
 
-type Locale = "FA" | "EN";
+type Locale = "fa" | "en";
 
-const savedLang = (localStorage.getItem("lang") as Locale) || "FA";
+const savedLang = (localStorage.getItem("lang") as Locale) || "fa";
 
 const i18n = createI18n({
   legacy: false,
   locale: savedLang,
-  fallbackLocale: "FA",
+  fallbackLocale: "fa",
   messages: {
-    FA: fa,
-    EN: us,
+    fa,
+    en,
   },
 });
 
@@ -39,7 +39,7 @@ app.use(i18n);
 watch(
   () => i18n.global.locale.value as Locale,
   (locale: Locale) => {
-    const isRTL = locale === "FA";
+    const isRTL = locale === "fa";
 
     document.documentElement.lang = isRTL ? "fa" : "en";
     document.documentElement.dir = isRTL ? "rtl" : "ltr";
